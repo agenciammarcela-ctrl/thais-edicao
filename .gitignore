@@ -1,0 +1,16 @@
+node_modules/
+.whisper/
+out/
+projetos/*/bruto.*
+projetos/*/saida/
+projetos/*/_cache/
+projetos/*/snaps/
+public/projetos/
+.DS_Store
+projetos/demo-*/
+_entrada/
+projetos/*/broll/
+projetos/*/adesivos/
+projetos/*/efeitos/
+projetos/*/musica/
+projetos/*/provas/
