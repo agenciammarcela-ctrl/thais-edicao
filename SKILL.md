@@ -63,6 +63,17 @@ compila código e pode pedir permissão. Sem ele não há transcrição.
    liste as palavras com tempo do `transcricao.json` ao redor do trecho e
    corte no INÍCIO da palavra: `npm run remover -- <nome> 24.55-32.2 214.3-fim`.
    As palavras removidas somem da legenda sozinhas. Avise a pessoa o que tirou.
+   **Não pare nas regravações inteiras** (feedback da Marcela: "não fez cortes
+   em erros"). Leia frase por frase e corte também:
+   - frase começada e abandonada ("Se você não está conseguindo nem cumprir o que você…")
+   - tropeço/palavra sobrando ("Pois bem, **que** essa mulher…", "o o", "que que" repetido sem querer)
+   - recomeço no meio da frase ("mexendo um pouquinho, mexendo um pouquinho")
+   - sobras depois do CTA e comentários fora do vídeo
+   Mantenha o que é jeito dela de falar (o "né?", o "uai", piadas).
+   **Depois de cortar, imprima a fala que ficou e procure palavra faltando**
+   ("Aí na quinta" virou "quinta"? "Com o treino" virou "treino"?) — palavra
+   curta comida por corte é o erro de edição mais perceptível. O `cortes.mjs`
+   já protege palavra curta da transcrição, mas confira sempre.
    Atenção: o whisper "estica" o tempo das palavras por cima das pausas — não
    use os tempos de palavra para achar silêncio (é por isso que o passo 3 usa o áudio).
 

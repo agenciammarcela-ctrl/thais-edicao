@@ -44,9 +44,29 @@ const { total, lista: candidatos } = detectar(LIMIAR, PAUSA);
 // parece silêncio. Silêncio de verdade continua silêncio 3 dB abaixo; fala baixa não.
 const { lista: profundos } = detectar(LIMIAR - 3, 0.15);
 const cobre = ([a, b]) => profundos.reduce((s, [x, y]) => s + Math.max(0, Math.min(b, y) - Math.max(a, x)), 0) / (b - a);
-const silencios = candidatos.filter((g) => cobre(g) >= 0.7);
+let silencios = candidatos.filter((g) => cobre(g) >= 0.7);
 const salvos = candidatos.length - silencios.length;
 if (salvos) console.log(`${salvos} "silêncio(s)" ignorado(s): tinham fala baixa (não sumiam ${LIMIAR - 3} dB)`);
+
+// segunda trava: palavra CURTA da transcrição (≤ 0,6 s — palavra esticada pelo whisper
+// não conta) que cai dentro de um "silêncio" foi dita baixinho: o silêncio encolhe para
+// não comê-la ("Com o", "isso", "vem", "e"). Se sobrar menos que a pausa mínima, não corta.
+let palavras = [];
+try { palavras = JSON.parse(await readFile(path.join(dir, 'transcricao.json'), 'utf8')); } catch {}
+const curtas = palavras.filter((w) => w.f - w.t > 0.03 && w.f - w.t <= 0.6);
+let encolhidos = 0;
+silencios = silencios.flatMap(([ga, gb]) => {
+  let a = ga, b = gb;
+  for (const w of curtas) {
+    const dentro = Math.min(w.f, b) - Math.max(w.t, a);
+    if (dentro <= 0 || dentro / (w.f - w.t) < 0.5) continue;
+    encolhidos++;
+    // a palavra fica do lado mais perto da borda do silêncio
+    if (w.t - a < b - w.f) a = w.f + 0.06; else b = w.t - 0.06;
+  }
+  return b - a >= PAUSA ? [[a, b]] : [];
+});
+if (encolhidos) console.log(`${encolhidos} palavra(s) curta(s) protegida(s) dentro de "silêncios"`);
 
 // fala = complemento dos silêncios, com folga
 const cortes = [];
