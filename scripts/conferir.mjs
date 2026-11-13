@@ -42,6 +42,8 @@ const { captions } = toCaptions({ whisperCppOutput: json });
 const mapa = [];
 { let acc = 0; for (const [a, b] of cortes) { mapa.push({ a, b, i: acc }); acc += b - a; } }
 const paraBruto = (t) => { for (const m of mapa) if (t <= m.i + (m.b - m.a)) return m.a + Math.max(0, t - m.i); const u = mapa[mapa.length - 1]; return u.b; };
+// fim de palavra nunca atravessa uma emenda: fica preso ao trecho onde a palavra começou
+const fimBruto = (ti, tf) => { const ini = paraBruto(ti); const seg = mapa.find((m) => ini >= m.a - 1e-6 && ini <= m.b + 1e-6); return Math.min(paraBruto(tf), seg ? seg.b : Infinity); };
 const ouvidas = captions.map((c) => ({ texto: c.text.trim(), t: c.startMs / 1000, f: c.endMs / 1000 })).filter((w) => w.texto);
 
 /* 3. o que deveria ter ficado */
@@ -90,21 +92,21 @@ if (aplicar) {
   while (k < pares.length) {
     if (pares[k].v && pares[k].n) {
       const { v, n } = pares[k];
-      saida.push({ texto: v.texto, t: paraBruto(n.t), f: paraBruto(Math.max(n.t + 0.05, n.f)) });
+      saida.push({ texto: v.texto, t: paraBruto(n.t), f: fimBruto(n.t, Math.max(n.t + 0.05, n.f)) });
       k++; continue;
     }
     // trecho sem casamento: olds e news entre duas âncoras
     const velhas = [], novas = [];
     while (k < pares.length && !(pares[k].v && pares[k].n)) { if (pares[k].v) velhas.push(pares[k].v); else novas.push(pares[k].n); k++; }
     if (!velhas.length) { // só o whisper novo ouviu (ex.: um "né?" a mais): entra
-      for (const n of novas) saida.push({ texto: n.texto, t: paraBruto(n.t), f: paraBruto(Math.max(n.t + 0.05, n.f)) });
+      for (const n of novas) saida.push({ texto: n.texto, t: paraBruto(n.t), f: fimBruto(n.t, Math.max(n.t + 0.05, n.f)) });
       continue;
     }
     // troca palavra-a-palavra (texto antigo, tempo novo)
     const m = Math.min(velhas.length, novas.length);
-    for (let x = 0; x < m; x++) saida.push({ texto: velhas[x].texto, t: paraBruto(novas[x].t), f: paraBruto(Math.max(novas[x].t + 0.05, novas[x].f)) });
+    for (let x = 0; x < m; x++) saida.push({ texto: velhas[x].texto, t: paraBruto(novas[x].t), f: fimBruto(novas[x].t, Math.max(novas[x].t + 0.05, novas[x].f)) });
     // palavras a mais que só o whisper novo ouviu: entram ("tá funcionando")
-    for (let x = m; x < novas.length; x++) saida.push({ texto: novas[x].texto, t: paraBruto(novas[x].t), f: paraBruto(Math.max(novas[x].t + 0.05, novas[x].f)) });
+    for (let x = m; x < novas.length; x++) saida.push({ texto: novas[x].texto, t: paraBruto(novas[x].t), f: fimBruto(novas[x].t, Math.max(novas[x].t + 0.05, novas[x].f)) });
     // palavras antigas que o novo NÃO ouviu: só palavrinha (o, a, e, de, na…) — o
     // whisper costuma pular essas; palavra longa sem eco no áudio cortado = foi cortada
     for (let x = m; x < velhas.length; x++) if (norm(velhas[x].texto).length <= 3) saida.push({ texto: velhas[x].texto, t: null, f: null });
@@ -118,6 +120,8 @@ if (aplicar) {
     const passo = Math.max(0.05, (fim - ini) / (y - x));
     for (let z = x; z < y; z++) { saida[z].t = ini + passo * (z - x); saida[z].f = saida[z].t + passo; }
   }
+  // ordem garantida (tempo crescente) e sem sobreposição
+  for (let x = 1; x < saida.length; x++) if (saida[x].t < saida[x - 1].t) saida[x].t = saida[x - 1].t + 0.005;
   const novasLegendas = saida.map((w) => ({ t: +w.t.toFixed(3), f: +Math.max(w.f, w.t + 0.05).toFixed(3), texto: w.texto }));
   const p2 = JSON.parse(await readFile(path.join(dir, 'plano.json'), 'utf8'));
   p2.legendas = novasLegendas;
