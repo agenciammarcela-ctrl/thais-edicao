@@ -76,6 +76,8 @@ export const ARoll: React.FC<Props> = ({ video, ts, zoomAlternado, zoomAuto, zoo
                 trimBefore={Math.round(tr.a * fps)}
                 playbackRate={tr.v}
                 preservePitch
+                // micro-fade de 1 quadro em cada emenda: corte justo sem estalo
+                volume={(f) => (f === 0 || f === ate - de - 1 ? 0.55 : 1)}
                 style={{ width, height, objectFit: 'cover', position: 'absolute', inset: 0 }}
               />
             )}

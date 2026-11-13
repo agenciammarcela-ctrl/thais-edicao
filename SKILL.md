@@ -47,35 +47,35 @@ compila código e pode pedir permissão. Sem ele não há transcrição.
    erros de transcrição (nomes próprios, termos técnicos, marcas), sem mexer
    nos tempos. Nunca invente fala que não existe.
 
-3. **Cortar silêncios.** `npm run cortes -- <nome> [pausa] [limiar]` — detecta
-   silêncio no ÁUDIO. Padrão: pausa 0,45 s, limiar −35 dB. Os vídeos da Thais
-   (selfie em casa, com ruído de ambiente) pedem limiar mais alto:
-   `npm run cortes -- <nome> 0.4 -28` (autoridade) ou `… 0.6 -30` (amiga).
-   O script já tem trava: um "silêncio" só é cortado se também some 3 dB
-   abaixo do limiar — palavra dita baixinho ("fome") não passa nesse teste e
-   fica. Se cortar 0 s, suba o limiar; se comer sílabas, desça. Este comando
-   SUBSTITUI os cortes — rode antes do passo 4. A Thaís fala quase sem pausa:
-   é normal o corte de silêncio tirar pouco; o ritmo vem do zoom e do B-roll.
+3. **Corte justo (padrão profissional).** `npm run justo -- <nome>` — mede o
+   áudio em blocos de 10 ms (volume + chiado) e emenda fala com fala: tira
+   respiração, pausa e "ar", deixando ~0,1 s de respiro. Limiares saem do
+   próprio vídeo. A Marcela reprovou o corte "frouxo" (só pausas longas):
+   **respiração entre frases SEMPRE sai**. (`npm run cortes` = modo antigo, só
+   pausas longas — não usar para a Thaís.) Este comando SUBSTITUI os cortes.
 
-4. **Limpar a fala.** Leia a transcrição procurando: frases repetidas (fica a
-   ÚLTIMA tentativa, que costuma ser a boa), começos em falso, "é… então…",
-   pedidos de "corta", sobras depois do CTA. Para achar os tempos exatos,
-   liste as palavras com tempo do `transcricao.json` ao redor do trecho e
-   corte no INÍCIO da palavra: `npm run remover -- <nome> 24.55-32.2 214.3-fim`.
-   As palavras removidas somem da legenda sozinhas. Avise a pessoa o que tirou.
-   **Não pare nas regravações inteiras** (feedback da Marcela: "não fez cortes
-   em erros"). Leia frase por frase e corte também:
-   - frase começada e abandonada ("Se você não está conseguindo nem cumprir o que você…")
-   - tropeço/palavra sobrando ("Pois bem, **que** essa mulher…", "o o", "que que" repetido sem querer)
-   - recomeço no meio da frase ("mexendo um pouquinho, mexendo um pouquinho")
-   - sobras depois do CTA e comentários fora do vídeo
-   Mantenha o que é jeito dela de falar (o "né?", o "uai", piadas).
-   **Depois de cortar, imprima a fala que ficou e procure palavra faltando**
-   ("Aí na quinta" virou "quinta"? "Com o treino" virou "treino"?) — palavra
-   curta comida por corte é o erro de edição mais perceptível. O `cortes.mjs`
-   já protege palavra curta da transcrição, mas confira sempre.
-   Atenção: o whisper "estica" o tempo das palavras por cima das pausas — não
-   use os tempos de palavra para achar silêncio (é por isso que o passo 3 usa o áudio).
+4. **Limpar a fala — erros, regravações, tropeços.** Leia frase por frase:
+   - regravação (fica a ÚLTIMA tentativa), frase começada e abandonada,
+     tropeço ("Pois bem, **que** essa mulher"), recomeço ("e eu sigo a… e eu
+     sigo a regra"), sobras depois do CTA;
+   - mantenha o jeito dela (o "né?", o "uai", piadas).
+   **Os tempos do whisper erram até ±0,25 s (e ~1 s no começo do vídeo)** —
+   nunca corte direto neles. Olhe a ONDA no ponto: imprima o volume a cada
+   20 ms (`scripts/audio.mjs` → `envelope`) e corte no vale de silêncio entre as
+   palavras: `npm run remover -- <nome> --exato 60.3-61.72 214.0-fim`. Sem
+   `--exato`, o remover "imanta" sozinho a borda no vale mais próximo (±0,15 s).
+   Hesitações que o whisper limpa ("ééé", "e eu sigo a… e eu sigo a"):
+   transcreva o áudio cortado com prompt de disfluência
+   (`additionalArgs: [["--prompt", "Ééé... ahn, hum, é é, eu eu."]]`) e leia o
+   contexto de cada "e/é" curto ou palavra repetida.
+
+4b. **Conferir e refazer a legenda.** `npm run conferir -- <nome> --aplicar`
+   monta o áudio cortado, transcreve de novo, lista palavra FALTANDO (cortada
+   por engano) e troca a legenda pela transcrição do áudio cortado (bem mais
+   sincronizada), herdando grafia corrigida e *destaques*. Revise as palavras
+   que não casaram (o whisper erra "segunda"→"segundo", "do álcool"→"dual") e
+   recoloque destaques se preciso. Meta: nada de conteúdo faltando; diferenças
+   só de grafia.
 
 5. **Desenhar a edição** seguindo a referência do estilo: gancho (título),
    B-roll (onde, qual layout, quanto tempo), destaques `*palavra*` na legenda,

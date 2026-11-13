@@ -27,7 +27,7 @@ export const montarBlocos = (palavras: Palavra[], ts: Trecho[], tk: TokensLegend
     .map((p) => ({
       texto: caixa(limpa(p.texto), tk.minusculas),
       destaque: /\*/.test(p.texto),
-      ini: paraFinal(ts, p.t),
+      ini: paraFinal(ts, Math.max(p.t, p.f - 0.4)),
       fim: paraFinal(ts, p.f),
     }));
 

@@ -131,8 +131,13 @@ export const paraFinal = (ts: Trecho[], tBruto: number): number => {
   return u ? u.inicioFinal + (u.b - u.a) / u.v : 0;
 };
 
-/** A palavra sobreviveu aos cortes? Basta um pedaço dela (≥ 0,08 s) estar num trecho
- *  mantido — o whisper costuma "esticar" a palavra por cima da pausa que vem antes dela,
- *  e o meio da palavra pode cair justamente no silêncio cortado. */
-export const palavraMantida = (ts: Trecho[], p: Palavra) =>
-  ts.some((tr) => Math.min(p.f, tr.b) - Math.max(p.t, tr.a) >= Math.min(0.08, (p.f - p.t) * 0.5));
+/** Trecho em que a palavra é dita DE FATO. O whisper "estica" a palavra para trás,
+ *  por cima da pausa que vem antes dela (ex.: "rotina" 0,14–0,98 s, dita em ~0,6–0,98 s);
+ *  o fim da palavra é confiável, o começo não. Então palavra longa = só os últimos 0,4 s. */
+export const nucleo = (p: Palavra): [number, number] => [Math.max(p.t, p.f - 0.4), p.f];
+
+/** A palavra sobreviveu aos cortes? Metade do núcleo dela (ou 0,08 s) está num trecho mantido. */
+export const palavraMantida = (ts: Trecho[], p: Palavra) => {
+  const [a, b] = nucleo(p);
+  return ts.some((tr) => Math.min(b, tr.b) - Math.max(a, tr.a) >= Math.min(0.08, (b - a) * 0.5));
+};

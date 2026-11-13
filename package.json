@@ -14,7 +14,9 @@
     "check": "tsc --noEmit",
     "instalar": "node scripts/instalar.mjs",
     "demo": "node scripts/demo/gerar-demo.mjs",
-    "remover": "node scripts/remover.mjs"
+    "remover": "node scripts/remover.mjs",
+    "justo": "node scripts/corte-justo.mjs",
+    "conferir": "node scripts/conferir.mjs"
   },
   "dependencies": {
     "@mediapipe/tasks-vision": "^1.2.3",
