@@ -74,22 +74,53 @@ await writeFile(path.join(dir, '_cache', 'conferencia.txt'), rel + '\n');
 console.log(rel);
 
 if (aplicar) {
-  // casa palavras ouvidas com as antigas (LCS acima) para herdar texto corrigido e destaque
-  const herda = new Map();
+  // COMBINA as duas transcrições: TEXTO da legenda atual (completa, corrigida, com
+  // *destaques*) + TEMPO da transcrição do áudio cortado (precisa). O whisper no
+  // áudio cortado às vezes pula palavrinha ("o", "a", "e") ou troca
+  // ("segunda"→"segundo"); por isso o texto nunca vem só dele.
+  const pares = [];
   { let i = 0, j = 0;
-    while (i < A.length && j < B.length) {
-      if (A[i] === B[j]) { herda.set(j, esperadas[i].texto); i++; j++; }
-      else if (L[i][j + 1] >= L[i + 1][j]) j++; else i++;
+    while (i < A.length || j < B.length) {
+      if (i < A.length && j < B.length && A[i] === B[j]) { pares.push({ v: esperadas[i], n: ouvidas[j] }); i++; j++; }
+      else if (j < B.length && (i === A.length || L[i][j + 1] >= L[i + 1][j])) { pares.push({ n: ouvidas[j] }); j++; }
+      else { pares.push({ v: esperadas[i] }); i++; }
     } }
-  const novas = ouvidas.map((w, j) => {
-    const antiga = herda.get(j);
-    let texto = w.texto;
-    if (antiga) texto = antiga; // mesma palavra: mantém grafia corrigida + *destaque*
-    const t = paraBruto(w.t), f = paraBruto(Math.max(w.t + 0.05, w.f));
-    return { t: +t.toFixed(3), f: +Math.max(f, t + 0.05).toFixed(3), texto };
-  });
+  const saida = [];
+  let k = 0;
+  while (k < pares.length) {
+    if (pares[k].v && pares[k].n) {
+      const { v, n } = pares[k];
+      saida.push({ texto: v.texto, t: paraBruto(n.t), f: paraBruto(Math.max(n.t + 0.05, n.f)) });
+      k++; continue;
+    }
+    // trecho sem casamento: olds e news entre duas âncoras
+    const velhas = [], novas = [];
+    while (k < pares.length && !(pares[k].v && pares[k].n)) { if (pares[k].v) velhas.push(pares[k].v); else novas.push(pares[k].n); k++; }
+    if (!velhas.length) { // só o whisper novo ouviu (ex.: um "né?" a mais): entra
+      for (const n of novas) saida.push({ texto: n.texto, t: paraBruto(n.t), f: paraBruto(Math.max(n.t + 0.05, n.f)) });
+      continue;
+    }
+    // troca palavra-a-palavra (texto antigo, tempo novo)
+    const m = Math.min(velhas.length, novas.length);
+    for (let x = 0; x < m; x++) saida.push({ texto: velhas[x].texto, t: paraBruto(novas[x].t), f: paraBruto(Math.max(novas[x].t + 0.05, novas[x].f)) });
+    // palavras a mais que só o whisper novo ouviu: entram ("tá funcionando")
+    for (let x = m; x < novas.length; x++) saida.push({ texto: novas[x].texto, t: paraBruto(novas[x].t), f: paraBruto(Math.max(novas[x].t + 0.05, novas[x].f)) });
+    // palavras antigas que o novo NÃO ouviu: só palavrinha (o, a, e, de, na…) — o
+    // whisper costuma pular essas; palavra longa sem eco no áudio cortado = foi cortada
+    for (let x = m; x < velhas.length; x++) if (norm(velhas[x].texto).length <= 3) saida.push({ texto: velhas[x].texto, t: null, f: null });
+  }
+  // preenche tempos que faltaram: divide o espaço entre os vizinhos
+  for (let x = 0; x < saida.length; x++) {
+    if (saida[x].t !== null) continue;
+    let y = x; while (y < saida.length && saida[y].t === null) y++;
+    const ini = x > 0 ? saida[x - 1].f : (saida[y]?.t ?? 0) - 0.3;
+    const fim = y < saida.length ? saida[y].t : ini + 0.3 * (y - x);
+    const passo = Math.max(0.05, (fim - ini) / (y - x));
+    for (let z = x; z < y; z++) { saida[z].t = ini + passo * (z - x); saida[z].f = saida[z].t + passo; }
+  }
+  const novasLegendas = saida.map((w) => ({ t: +w.t.toFixed(3), f: +Math.max(w.f, w.t + 0.05).toFixed(3), texto: w.texto }));
   const p2 = JSON.parse(await readFile(path.join(dir, 'plano.json'), 'utf8'));
-  p2.legendas = novas;
+  p2.legendas = novasLegendas;
   await writeFile(path.join(dir, 'plano.json'), JSON.stringify(p2, null, 2));
-  console.log(`\nlegendas trocadas pela transcrição do áudio cortado (${novas.length} palavras, ${herda.size} herdaram texto/destaque)`);
+  console.log(`\nlegenda recombinada: ${novasLegendas.length} palavras (texto da legenda antiga + tempo do áudio cortado)`);
 }

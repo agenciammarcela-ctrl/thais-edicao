@@ -19,7 +19,11 @@ export const Video: React.FC<Plano> = (plano) => {
   const F = (tBruto: number) => Math.round(paraFinal(ts, tBruto) * fps);
   const blocos = useMemo(() => montarBlocos(plano.legendas ?? [], ts, tk.legenda), [plano.legendas, ts, tk.legenda]);
 
-  const broll = (plano.broll ?? []).map((b) => ({ b, ini: F(b.em), dur: Math.round(b.dur * fps) }));
+  // B-roll nunca se sobrepõe: cada um termina, no máximo, quando o próximo começa
+  const broll = (plano.broll ?? [])
+    .map((b) => ({ b, ini: F(b.em), dur: Math.round(b.dur * fps) }))
+    .sort((x, y) => x.ini - y.ini)
+    .map((x, i, arr) => ({ ...x, dur: Math.max(1, Math.min(x.dur, (arr[i + 1]?.ini ?? Infinity) - x.ini)) }));
   const cartelas = (plano.cartelas ?? []).map((c) => ({ c, ini: F(c.em), dur: Math.round(c.dur * fps) }));
   const provas = (plano.provas ?? []).map((p) => ({ p, ini: F(p.em), dur: Math.round(p.dur * fps) }));
   const adesivos = (plano.adesivos ?? []).map((a) => ({ a, ini: F(a.em), dur: Math.round(a.dur * fps) }));

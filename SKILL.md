@@ -83,7 +83,21 @@ compila código e pode pedir permissão. Sem ele não há transcrição.
    `plano.json`. Todo `em` é em segundos do BRUTO (o relógio da transcrição);
    `dur` é em segundos do vídeo final.
 
-6. **B-roll e imagens.** Ordem de preferência:
+5b. **Duração e corte de conteúdo.** Meta da Marcela: **até 1:30** cada vídeo.
+   Se passar, proponha quais FALAS tirar (frase dispensável, exemplo repetido,
+   explicação que não muda o sentido) — mas **nunca quebre o raciocínio**
+   ("você está perdendo o sentido dos vídeos"): o gancho, a virada e o CTA
+   ficam; humor da Thaís também. Mostre o roteiro com o que sai ANTES de
+   aplicar e espere o ok.
+
+5c. **Zoom com parcimônia.** A Marcela achou "muito corte de tela, de aproximar
+   e sair". Zoom só em começo de frase, no mínimo a cada 5 s (autoridade,
+   1,00/1,08, ênfase 1,16) ou 7 s (amiga, 1,00/1,05) — nunca a cada emenda.
+
+6. **B-roll e imagens.** **Primeiro as fotos da própria Thaís** (pasta do Drive
+   1cqB6yx9iI7ZlF_uIl3kA8w7aqRNNdMV6 → `_banco-thais/jpg/`, fora do git): academia,
+   antes/depois, pilates/meditação, notebook, lifestyle — sempre que fizer
+   sentido com a fala. Depois, ordem de preferência:
    (a) arquivos que a Thais/Marcela mandaram — em `projetos/<nome>/broll/`;
    (b) gerar com o MCP de imagem/vídeo disponível na sessão (Higgsfield, Canva…);
    (c) banco de imagens com licença;

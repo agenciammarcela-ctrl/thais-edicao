@@ -1,7 +1,7 @@
 /* CORTE JUSTO — o corte "profissional" de Reels: emenda frase com frase, tira
    respiração, pausa e "ar" entre as falas, e deixa só o respiro natural.
 
-   Uso:  npm run justo -- <nome> [folga=0.10]
+   Uso:  npm run justo -- <nome> [pausaMin=0.35]
    (rode depois de `npm run transcrever`; depois use `npm run remover` para
    regravações/erros e `npm run conferir` para provar que nenhuma palavra sumiu)
 
@@ -12,8 +12,10 @@
    2. Os limiares saem do próprio vídeo: piso = percentil 10, voz = percentil 90.
    3. Ilhas de voz são estendidas para pegar começo/fim suaves de palavra, mas a
       extensão para quando vira respiração (chiado sustentado > 120 ms).
-   4. Buracos ≥ 0,22 s entre ilhas são cortados, deixando `folga` de ar
-      (padrão 0,10 s: 0,06 depois da fala + 0,04 antes da próxima).
+   4. Só pausa DE VERDADE é cortada (≥ 0,35 s): micro-pausa entre palavras dentro
+      da frase fica — cortá-la deixa a fala picotada (reprovado pela Marcela).
+      Folga: 0,14 s depois da fala (o fim da palavra decai devagar: "s", vogal
+      final) e 0,06 s antes da próxima.
    5. Palavra curta da transcrição que cair num buraco é protegida.
    Grava plano.cortes (SUBSTITUI os anteriores). */
 import { readFile, writeFile } from 'node:fs/promises';
@@ -21,11 +23,10 @@ import { existsSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 
-const [nome, folgaArg] = process.argv.slice(2);
-if (!nome) { console.log('uso: npm run justo -- <nome> [folga]'); process.exit(1); }
-const FOLGA = Number(folgaArg ?? 0.1);
-const DEPOIS = FOLGA * 0.6, ANTES = FOLGA * 0.4;
-const BURACO_MIN = 0.22;
+const [nome, pausaArg] = process.argv.slice(2);
+if (!nome) { console.log('uso: npm run justo -- <nome> [pausaMin]'); process.exit(1); }
+const BURACO_MIN = Number(pausaArg ?? 0.35);
+const DEPOIS = 0.14, ANTES = 0.06;
 
 const dir = path.join('projetos', nome);
 const planoPath = path.join(dir, 'plano.json');
@@ -64,7 +65,7 @@ const ord = Array.from(dbs).sort((a, b) => a - b);
 const P = (p) => ord[Math.floor(p * (N - 1))];
 const PISO = P(0.1), VOZ = P(0.9);
 const ALTO = PISO + 0.55 * (VOZ - PISO);   // certeza de voz
-const BAIXO = PISO + 0.28 * (VOZ - PISO);  // começo/fim suave de palavra
+const BAIXO = PISO + 0.2 * (VOZ - PISO);   // começo/fim suave de palavra (baixo para não cortar final)
 const CHIADO = 0.28;                        // ZCR acima disso com volume baixo = respiração/ar
 
 /* ---- 3. ilhas de voz com histerese ---- */
@@ -107,6 +108,8 @@ const falas = juntas.filter(([a, b]) => b - a >= 0.06);
 
 /* ---- 4. buracos → cortes, com folga ---- */
 let cortes = falas.map(([a, b]) => [Math.max(0, a - ANTES), b + DEPOIS]);
+// a última fala do vídeo decai devagar e não tem nada depois: folga extra para não engolir o fim
+if (cortes.length) cortes[cortes.length - 1][1] = Math.min(N * PASSO, cortes[cortes.length - 1][1] + 0.35);
 
 /* ---- 5. protege palavra curta da transcrição que caiu num buraco ---- */
 let palavras = [];
