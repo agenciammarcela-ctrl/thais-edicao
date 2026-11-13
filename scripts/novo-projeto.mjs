@@ -25,10 +25,12 @@ for (const p of ['broll', 'adesivos', 'efeitos', 'musica', 'provas']) await mkdi
 if (bruto) {
   // padroniza o bruto: H.264, 30 fps constantes, áudio AAC. Vídeo de iPhone vem em
   // HEVC e com fps variável — isso desalinha corte e legenda se não for convertido.
+  // E o áudio às vezes começa depois do 1º quadro: aresample first_pts=0 preenche de
+  // silêncio para áudio e vídeo começarem juntos (senão TODO tempo medido fica adiantado).
   console.log('convertendo o bruto para H.264 30 fps…');
   execFileSync('npx', ['remotion', 'ffmpeg', '-y', '-loglevel', 'error', '-i', bruto,
     '-c:v', 'libx264', '-preset', 'fast', '-crf', '16', '-r', '30', '-pix_fmt', 'yuv420p',
-    '-c:a', 'aac', '-b:a', '192k', '-movflags', '+faststart', path.join(dir, 'bruto.mp4')], { stdio: 'inherit' });
+    '-af', 'aresample=async=1:first_pts=0', '-c:a', 'aac', '-b:a', '192k', '-movflags', '+faststart', path.join(dir, 'bruto.mp4')], { stdio: 'inherit' });
 }
 
 const plano = {

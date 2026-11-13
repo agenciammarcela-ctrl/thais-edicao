@@ -16,7 +16,8 @@
     "demo": "node scripts/demo/gerar-demo.mjs",
     "remover": "node scripts/remover.mjs",
     "justo": "node scripts/corte-justo.mjs",
-    "conferir": "node scripts/conferir.mjs"
+    "conferir": "node scripts/conferir.mjs",
+    "alinhar": "node scripts/alinhar-audio.mjs"
   },
   "dependencies": {
     "@mediapipe/tasks-vision": "^1.2.3",

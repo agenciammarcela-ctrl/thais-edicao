@@ -41,6 +41,9 @@ compila código e pode pedir permissão. Sem ele não há transcrição.
 1. **Criar o projeto.** `npm run novo -- <nome> <estilo> <caminho/do/bruto.mp4>`
    Nome curto, sem espaço (`2026-11-cansaco`). O bruto é copiado para
    `projetos/<nome>/bruto.mp4` (fica fora do git).
+   O `novo` já alinha o áudio ao vídeo (iPhone grava o áudio começando até 0,8 s
+   depois do 1º quadro — sem isso legenda e corte ficam adiantados e o começo
+   sai fora de sincronia). Projeto antigo: `npm run alinhar -- <nome>` uma vez.
 
 2. **Transcrever.** `npm run transcrever -- <nome>`. Leia
    `projetos/<nome>/transcricao.txt` inteiro. Corrija no `plano.legendas` os

@@ -17,3 +17,8 @@ npm run conferir -- thais-01 --aplicar   # depois: correções manuais de legend
 Legenda: "não cai do **céu**" (whisper: "seu"), "manda pra uma amiga que acha **que**
 precisa…" (faltava o "que"), "e eu sigo a regra dos **80** a 20" retranscrito no trecho.
 Fotos da Thaís: corpo (52), treino com kettlebell (69), antes/depois (09), notebook (45).
+
+**Sincronia (2026-11-13):** o .mov do iPhone tem o áudio começando 0,785 s depois do vídeo;
+o WAV de análise ignorava isso e todos os tempos ficaram adiantados (início fora de sincronia,
+"cerveja" engolido). `npm run alinhar -- thais-01` preencheu o áudio de silêncio desde o 0 e
+deslocou cortes/legendas/camadas +0,785 s. Os tempos da tabela acima são de ANTES do alinhamento.

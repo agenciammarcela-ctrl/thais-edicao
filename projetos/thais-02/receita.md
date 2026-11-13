@@ -32,3 +32,6 @@ silêncio entre "nada" e "muito": o corte come o fim do "nada" (testado e desfei
 Legenda — correções manuais após o `conferir --aplicar` (whisper ouviu errado):
 "várias **vezes**", "aonde que **desanda**", "Com o **treino**", "essa opção **aqui**",
 "o que que **tá funcionando**", "aos **pouquinhos**", "treinar, **sabe?**".
+
+**Sincronia (2026-11-13):** áudio do .mov começava 0,136 s depois do vídeo → `npm run alinhar --
+thais-02` deslocou tudo +0,136 s. Os tempos da tabela acima são de ANTES do alinhamento.
