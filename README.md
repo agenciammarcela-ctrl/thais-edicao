@@ -52,6 +52,8 @@ npm run render -- demo-amiga
 
 | Comando | O que faz |
 |---|---|
+| `npm run baixar -- <link do Drive>` | baixa vídeos brutos de uma pasta do Drive para `_entrada/` |
+| `npm run fotos -- <link do Drive>` | baixa as fotos da Thaís e converte para JPG em `_banco-thais/jpg/` |
 | `npm run novo -- <nome> <estilo> <bruto.mp4>` | cria `projetos/<nome>/` |
 | `npm run transcrever -- <nome>` | transcrição com tempo de cada palavra |
 | `npm run cortes -- <nome> [pausa] [limiar]` | corta silêncios detectados no áudio |

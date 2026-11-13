@@ -39,6 +39,8 @@ compila código e pode pedir permissão. Sem ele não há transcrição.
 ## Fluxo de trabalho
 
 1. **Criar o projeto.** `npm run novo -- <nome> <estilo> <caminho/do/bruto.mp4>`
+   Bruto num link do Google Drive? `npm run baixar -- <link da pasta ou do arquivo>`
+   baixa para `_entrada/` (a pasta precisa estar como "qualquer pessoa com o link").
    Nome curto, sem espaço (`2026-11-cansaco`). O bruto é copiado para
    `projetos/<nome>/bruto.mp4` (fica fora do git).
    O `novo` já alinha o áudio ao vídeo (iPhone grava o áudio começando até 0,8 s
@@ -97,8 +99,8 @@ compila código e pode pedir permissão. Sem ele não há transcrição.
    e sair". Zoom só em começo de frase, no mínimo a cada 5 s (autoridade,
    1,00/1,08, ênfase 1,16) ou 7 s (amiga, 1,00/1,05) — nunca a cada emenda.
 
-6. **B-roll e imagens.** **Primeiro as fotos da própria Thaís** (pasta do Drive
-   1cqB6yx9iI7ZlF_uIl3kA8w7aqRNNdMV6 → `_banco-thais/jpg/`, fora do git): academia,
+6. **B-roll e imagens.** **Primeiro as fotos da própria Thaís** (`_banco-thais/jpg/`, fora
+   do git; se a pasta não existir, peça o link do Drive de fotos e rode `npm run fotos -- <link>`): academia,
    antes/depois, pilates/meditação, notebook, lifestyle — sempre que fizer
    sentido com a fala. Depois, ordem de preferência:
    (a) arquivos que a Thais/Marcela mandaram — em `projetos/<nome>/broll/`;
