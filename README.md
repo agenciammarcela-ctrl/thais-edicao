@@ -8,10 +8,13 @@ efeitos — sempre no padrão da casa.
 | Estilo | Para quê | Assinatura |
 |---|---|---|
 | **Autoridade** (estilo 2) | conteúdo técnico, "o verdadeiro motivo" | faixa vermelha no gancho, tela dividida, B-roll literal, legenda creme discreta, zoom a cada corte |
-| **Amiga** (estilo 3) | conselhos, emocional, listas | adesivos scrapbook, título com estrelas, legenda itálica em minúsculas que se acumula, flor em dupla exposição, luz e brilho |
+| **Amiga** (estilo 3) | conselhos, emocional, listas | memes que reagem às piadas, fotos do tema atrás dela, adesivos do assunto, título com estrelas, legenda itálica em minúsculas que se acumula |
 | **Prova** (estilo 1) | análises com dados | manchetes com fundo P&B, cartelas douradas de capítulo, flash, zoom forte |
 
 ## Como usar (no Claude Code)
+
+Guia completo para quem vai usar (instalação, como pedir, regras da casa):
+[Wiki — Edição dos vídeos da Thaís](https://claude.ai/artifact/AbVGmRiMoaycNJbWjBBjqs).
 
 1. Abra esta pasta no Claude Code (app desktop → Code → pasta `thais-edicao`).
 2. Peça em português normal, por exemplo:
